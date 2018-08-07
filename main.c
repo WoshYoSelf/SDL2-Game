@@ -23,7 +23,7 @@ void cleanup();
 
 SDL_Texture* loadTexture(char* path);
 
-SDL_Surface* gKeyPressSurfaces[ KEY_PRESS_SURFACE_TOTAL ];
+SDL_Texture* gKeyPressSurfaces[ KEY_PRESS_SURFACE_TOTAL ];
 
 SDL_Texture* gTexture = NULL;
 
@@ -31,8 +31,26 @@ SDL_Window* gWindow = NULL;
 
 SDL_Surface* gScreenSurface = NULL;
 
-
 SDL_Renderer* gRenderer = NULL;
+
+SDL_Texture* loadTexture( char* path) {
+  SDL_Texture* newTexture = NULL;
+
+  SDL_Surface* loadedSurface  = IMG_Load( path );
+  if( loadedSurface == NULL ) {
+    printf( "Unable to load image %s! SDL_image Error: %s\n", path, SDL_GetError() );
+  }
+  else {
+    newTexture = SDL_CreateTextureFromSurface( gRenderer, loadedSurface );
+    if( newTexture == NULL ) {
+      printf( "Unable to create texture from %s! SDL Error: %s\n", path, SDL_GetError() );
+    }
+    
+    SDL_FreeSurface( loadedSurface );
+  }
+
+  return newTexture;
+}
 
 bool init() {
   bool success = true;
@@ -80,29 +98,18 @@ bool loadMedia() {
     printf( "Failed to load texture image!\n" );
     success = false;
   }
-
-
+  gKeyPressSurfaces[ KEY_PRESS_SURFACE_RIGHT ] = loadTexture( "player.png" );
+  if( gKeyPressSurfaces[ KEY_PRESS_SURFACE_RIGHT ] == NULL ) {
+    printf( "Failed to load right image!\n ");
+    success = false;
+  }
+  gKeyPressSurfaces[ KEY_PRESS_SURFACE_LEFT ] = loadTexture( "player_flip.png" );
+  if( gKeyPressSurfaces[ KEY_PRESS_SURFACE_LEFT ] == NULL ) {
+    printf( "Failed to load left image!\n ");
+    success = false;
+  }
   return success;
 
-}
-
-SDL_Texture* loadTexture( char* path) {
-  SDL_Texture* newTexture = NULL;
-
-  SDL_Surface* loadedSurface  = IMG_Load( path );
-  if( loadedSurface == NULL ) {
-    printf( "Unable to load image %s! SDL_image Error: %s\n", path, SDL_GetError() );
-  }
-  else {
-    newTexture = SDL_CreateTextureFromSurface( gRenderer, loadedSurface );
-    if( newTexture == NULL ) {
-      printf( "Unable to create texture from %s! SDL Error: %s\n", path, SDL_GetError() );
-    }
-    
-    SDL_FreeSurface( loadedSurface );
-  }
-
-  return newTexture;
 }
 
 void cleanup() {
@@ -120,6 +127,8 @@ void cleanup() {
 }
 
 int main( int argc, char* args[] ) {
+  bool success = true;
+
   if( !init() ) {
     printf( "Failed to initialize!\n");
   }
@@ -137,6 +146,17 @@ int main( int argc, char* args[] ) {
           if( e.type == SDL_QUIT ) {
             quit = true;
           }
+          else if( e.type == SDL_KEYDOWN ) {
+            switch( e.key.keysym.sym ) {
+              case SDLK_RIGHT:
+                gTexture = gKeyPressSurfaces[ KEY_PRESS_SURFACE_RIGHT ];
+                break;
+
+              case SDLK_LEFT:
+                gTexture = gKeyPressSurfaces[ KEY_PRESS_SURFACE_LEFT ];
+                break;
+            }
+          }
         }
 
         SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
@@ -152,7 +172,6 @@ int main( int argc, char* args[] ) {
       }
     }
   }
-
   cleanup();
 
   return 0;
