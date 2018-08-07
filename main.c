@@ -148,11 +148,11 @@ int main( int argc, char* args[] ) {
           }
           else if( e.type == SDL_KEYDOWN ) {
             switch( e.key.keysym.sym ) {
-              case SDLK_RIGHT:
+              case SDLK_d:
                 gTexture = gKeyPressSurfaces[ KEY_PRESS_SURFACE_RIGHT ];
                 break;
 
-              case SDLK_LEFT:
+              case SDLK_a:
                 gTexture = gKeyPressSurfaces[ KEY_PRESS_SURFACE_LEFT ];
                 break;
             }
