@@ -169,12 +169,8 @@ int main( int argc, char* args[] ) {
           }
         }
 
-        SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+        SDL_SetRenderDrawColor( gRenderer, 0, 0, 0, 255 );
         SDL_RenderClear( gRenderer );
-
-        //SDL_Rect fillRect = { .x = 10, .y = 50, .w = 64 * 3, .h = 64 * 3 };
-        //SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
-        //SDL_RenderFillRect( gRenderer, &fillRect );
 
         SDL_RenderCopy( gRenderer, gTexture, NULL, &fillRect );
 
