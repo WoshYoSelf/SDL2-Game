@@ -149,6 +149,9 @@ int main( int argc, char* args[] ) {
           if( e.type == SDL_QUIT ) {
             quit = true;
           }
+          if( SDL_GetKeyboardState( NULL )[ SDL_SCANCODE_Q ] ) {
+            quit = true;
+          }
           else if( e.type == SDL_KEYDOWN ) {
             switch( e.key.keysym.sym ) {
               case SDLK_d:
