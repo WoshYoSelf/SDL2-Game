@@ -140,6 +140,9 @@ int main( int argc, char* args[] ) {
       bool quit = false;
 
       SDL_Event e;
+      SDL_Rect fillRect = { .x = 10, .y = 50, .w = 64 * 3, .h = 64 * 3 };
+      SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+      SDL_RenderFillRect( gRenderer, &fillRect );
 
       while( !quit ) {
         while( SDL_PollEvent( &e ) != 0 ) {
@@ -150,10 +153,17 @@ int main( int argc, char* args[] ) {
             switch( e.key.keysym.sym ) {
               case SDLK_d:
                 gTexture = gKeyPressSurfaces[ KEY_PRESS_SURFACE_RIGHT ];
+                fillRect.x += 10;
                 break;
 
               case SDLK_a:
                 gTexture = gKeyPressSurfaces[ KEY_PRESS_SURFACE_LEFT ];
+                fillRect.x -= 10;
+                break;
+            }
+            switch( e.key.keysym.sym ) {
+              case SDLK_d:
+                gTexture = gKeyPressSurfaces[ KEY_PRESS_SURFACE_RIGHT ];
                 break;
             }
           }
@@ -162,9 +172,9 @@ int main( int argc, char* args[] ) {
         SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
         SDL_RenderClear( gRenderer );
 
-        SDL_Rect fillRect = { .x = 10, .y = 50, .w = 64 * 3, .h = 64 * 3 };
-        SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
-        SDL_RenderFillRect( gRenderer, &fillRect );
+        //SDL_Rect fillRect = { .x = 10, .y = 50, .w = 64 * 3, .h = 64 * 3 };
+        //SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+        //SDL_RenderFillRect( gRenderer, &fillRect );
 
         SDL_RenderCopy( gRenderer, gTexture, NULL, &fillRect );
 
