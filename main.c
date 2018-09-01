@@ -2,6 +2,7 @@
 #include <SDL2/SDL_image.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <time.h>
 
 #include "player.h"
 
@@ -27,6 +28,8 @@ SDL_Texture* gKeyPressSurfaces[ KEY_PRESS_SURFACE_TOTAL ];
 
 SDL_Texture* gTexture = NULL;
 
+SDL_Texture* gFloor = NULL;
+
 SDL_Window* gWindow = NULL;
 
 SDL_Surface* gScreenSurface = NULL;
@@ -45,7 +48,6 @@ SDL_Texture* loadTexture( char* path) {
     if( newTexture == NULL ) {
       printf( "Unable to create texture from %s! SDL Error: %s\n", path, SDL_GetError() );
     }
-    
     SDL_FreeSurface( loadedSurface );
   }
 
@@ -98,6 +100,11 @@ bool loadMedia() {
     printf( "Failed to load texture image!\n" );
     success = false;
   }
+  gFloor = loadTexture( "floor.png" );
+  if( gFloor == NULL ) {
+    printf( "Failed to load floor image!/n" );
+    success = false;
+  }
   gKeyPressSurfaces[ KEY_PRESS_SURFACE_RIGHT ] = loadTexture( "player.png" );
   if( gKeyPressSurfaces[ KEY_PRESS_SURFACE_RIGHT ] == NULL ) {
     printf( "Failed to load right image!\n ");
@@ -115,7 +122,9 @@ bool loadMedia() {
 void cleanup() {
 
   SDL_DestroyTexture( gTexture );
+  SDL_DestroyTexture( gFloor );
   gTexture = NULL;
+  gFloor = NULL;
 
   SDL_DestroyRenderer( gRenderer );
   SDL_DestroyWindow( gWindow );
@@ -127,6 +136,8 @@ void cleanup() {
 }
 
 int main( int argc, char* args[] ) {
+  Uint32 delta;
+
   bool success = true;
 
   if( !init() ) {
@@ -139,43 +150,37 @@ int main( int argc, char* args[] ) {
     else {
       bool quit = false;
 
-      SDL_Event e;
-      SDL_Rect fillRect = { .x = 10, .y = 50, .w = 64 * 3, .h = 64 * 3 };
-      SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
-      SDL_RenderFillRect( gRenderer, &fillRect );
+      // SDL_Rect playerRect = { .x = 0, .y = 100, .w = 64 * 3, .h = 64 * 3 };
+      // SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+      // SDL_RenderFillRect( gRenderer, &playerRect );
 
+      struct Player* player = create_player(gRenderer);
+
+      SDL_Rect floorRect = { .x = 0, .y = 710, .w = 1280, .h = 10 };
+      SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+      SDL_RenderFillRect( gRenderer, &floorRect );
+
+      Uint32 time_of_last_frame = SDL_GetTicks();
+
+      SDL_Event e;
       while( !quit ) {
+
+        Uint32 frame_delta = SDL_GetTicks() - time_of_last_frame;
+        time_of_last_frame = SDL_GetTicks();
+
         while( SDL_PollEvent( &e ) != 0 ) {
           if( e.type == SDL_QUIT ) {
             quit = true;
           }
-          if( SDL_GetKeyboardState( NULL )[ SDL_SCANCODE_Q ] ) {
-            quit = true;
-          }
-          else if( e.type == SDL_KEYDOWN ) {
-            switch( e.key.keysym.sym ) {
-              case SDLK_d:
-                gTexture = gKeyPressSurfaces[ KEY_PRESS_SURFACE_RIGHT ];
-                fillRect.x += 10;
-                break;
 
-              case SDLK_a:
-                gTexture = gKeyPressSurfaces[ KEY_PRESS_SURFACE_LEFT ];
-                fillRect.x -= 10;
-                break;
-            }
-            switch( e.key.keysym.sym ) {
-              case SDLK_d:
-                gTexture = gKeyPressSurfaces[ KEY_PRESS_SURFACE_RIGHT ];
-                break;
-            }
-          }
+          move_player(player);
         }
-
-        SDL_SetRenderDrawColor( gRenderer, 0, 0, 0, 255 );
+        SDL_SetRenderDrawColor( gRenderer, 232, 59, 192, 1 );
         SDL_RenderClear( gRenderer );
 
-        SDL_RenderCopy( gRenderer, gTexture, NULL, &fillRect );
+        SDL_Rect pRect = { .x = player->posX, .y = player->posY, .w = player->width, .h = player->height};
+        SDL_RenderCopy( gRenderer, gTexture, NULL, &pRect );
+        SDL_RenderCopy( gRenderer, gFloor, NULL, &floorRect );
 
         SDL_RenderPresent( gRenderer );
       }
